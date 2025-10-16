@@ -1,1 +1,22 @@
-# projetocartografia
+# <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador Topográfico 3D</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
+        model-viewer { width: 100%; height: 100%; --poster-color: #f0f0f0; background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <model-viewer
+        src="terreno.glb" alt="Modelo 3D do terreno"
+        camera-controls
+        auto-rotate
+        shadow-intensity="1">
+    </model-viewer>
+</body>
+</html>
