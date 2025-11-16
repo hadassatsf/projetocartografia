@@ -17,6 +17,7 @@
 
         /* Estilização do nosso novo botão */
         #vr-button {
+            /* O botão agora é configurado para aparecer por padrão */
             position: fixed;
             bottom: 20px;
             left: 50%;
@@ -30,7 +31,7 @@
             border-radius: 8px;
             cursor: pointer;
             z-index: 100; 
-            transition: opacity 0.3s; /* Transição suave */
+            transition: opacity 0.3s;
         }
 
         #vr-button:hover {
@@ -49,35 +50,28 @@
         shadow-intensity="1">
     </model-viewer>
 
-    <button id="vr-button" style="display: none;">Entrar em Realidade Virtual (VR)</button>
+    <button id="vr-button">Entrar em Realidade Virtual (VR)</button>
 
     <script>
         const modelViewer = document.querySelector('#vr-model');
         const vrButton = document.querySelector('#vr-button');
 
-        // FUNÇÃO DE VERIFICAÇÃO DE COMPATIBILIDADE:
-        // Verifica se o dispositivo suporta VR para exibir o botão.
-        // O evento 'model-visibility' é disparado quando o modelo está pronto.
-        modelViewer.addEventListener('model-visibility', () => {
-            // O modelViewer.canActivateVR() verifica o suporte WebXR do navegador
-            if (modelViewer.canActivateVR) {
-                vrButton.style.display = 'block'; // Mostra o botão
-            }
-        });
-
-        // FUNÇÃO DE ATIVAÇÃO NA TRANSIÇÃO:
         vrButton.addEventListener('click', () => {
             if (modelViewer.activateVR) {
                 // 1. ACIONA A TRANSFORMAÇÃO:
                 modelViewer.activateVR();
                 
-                // 2. LIMPEZA VISUAL (O botão deve desaparecer ao entrar no VR):
+                // 2. LIMPEZA VISUAL (O botão desaparece após o clique):
                 vrButton.style.opacity = '0';
-                vrButton.style.pointerEvents = 'none'; // Desativa o botão
+                vrButton.style.pointerEvents = 'none'; 
             } else {
-                alert("Seu dispositivo não é compatível com WebXR (VR).");
+                // Mensagem de erro caso o navegador não consiga ativar o VR:
+                alert("O modo VR não pôde ser ativado. Verifique se seu dispositivo suporta WebXR e se o navegador está atualizado (Chrome ou Firefox).");
             }
         });
     </script>
 </body>
 </html>
+</body>
+</html>
+
