@@ -3,39 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizador Topográfico VR</title>
+    <title>Mapa Interativo de Teresina</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
+        /* Reset básico e Fonte */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         
-        /* Estilização básica do visualizador */
+        /* Estilo do Visualizador */
         model-viewer { 
             width: 100%; 
             height: 100%; 
-            --poster-color: #f0f0f0; 
-            background-color: #9e9e9e; 
+            --poster-color: #f0f0f0;
+            background: linear-gradient(180deg, #e0eafc 0%, #cfdef3 100%); /* Degradê suave no fundo */
         }
 
-        /* Estilização do nosso novo botão */
-        #vr-button {
-            /* O botão agora é configurado para aparecer por padrão */
-            position: fixed;
+        /* Card Flutuante (Título e Descrição) */
+        .info-card {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.85); /* Fundo branco semi-transparente */
+            backdrop-filter: blur(10px); /* Efeito de vidro fosco */
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            z-index: 10;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .info-card h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .info-card p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Instruções no Rodapé */
+        .controls-hint {
+            position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 12px 25px;
-            font-size: 18px;
-            font-weight: bold;
-            background-color: #00bcd4; /* Azul/Ciano para destaque */
+            background: rgba(0, 0, 0, 0.6);
             color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            z-index: 100; 
-            transition: opacity 0.3s;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            pointer-events: none; /* Deixa clicar através do texto */
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            backdrop-filter: blur(4px);
         }
 
-        #vr-button:hover {
-            background-color: #00a0b0;
+        /* Barra de Carregamento */
+        .progress-bar {
+            display: block;
+            width: 33%;
+            height: 10%;
+            max-height: 2%;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-33%, -50%);
+            border-radius: 25px;
+            box-shadow: 0px 3px 10px 3px rgba(0, 0, 0, 0.1), 0px 0px 5px 1px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    
+        .progress-bar.hide {
+            visibility: hidden;
+            transition: visibility 0.3s;
+        }
+    
+        .update-bar {
+            background-color: #3295a8; /* Cor da barra de progresso */
+            width: 0%;
+            height: 100%;
+            border-radius: 25px;
+            float: left;
+            transition: width 0.3s;
+        }
+
+        /* Animação de entrada */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Ajuste para celulares */
+        @media (max-width: 600px) {
+            .info-card {
+                left: 10px;
+                right: 10px;
+                top: 10px;
+                max-width: none; /* Ocupa a largura toda no celular */
+            }
         }
     </style>
 </head>
@@ -43,35 +114,45 @@
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <model-viewer
-        id="vr-model"
-        src="teresina.glb" 
+        src="teresina-v2.glb" 
         alt="Modelo 3D de Teresina"
         camera-controls
-        shadow-intensity="1">
+        auto-rotate
+        shadow-intensity="1"
+        camera-orbit="45deg 55deg 1000m" 
+        exposure="1">
+
+        <div class="progress-bar" slot="progress-bar">
+            <div class="update-bar"></div>
+        </div>
+
     </model-viewer>
 
-    <button id="vr-button">Entrar em Realidade Virtual (VR)</button>
+    <div class="info-card">
+        <h1>Teresina 3D</h1>
+        <p>Visualização interativa da topografia e malha urbana.</p>
+        <p style="margin-top: 10px; font-size: 12px; color: #888;">Projeto de Cartografia</p>
+    </div>
+
+    <div class="controls-hint">
+        <span>🖐️ Arraste para girar</span>
+        <span>🤏 Pince para zoom</span>
+    </div>
 
     <script>
-        const modelViewer = document.querySelector('#vr-model');
-        const vrButton = document.querySelector('#vr-button');
-
-        vrButton.addEventListener('click', () => {
-            if (modelViewer.activateVR) {
-                // 1. ACIONA A TRANSFORMAÇÃO:
-                modelViewer.activateVR();
-                
-                // 2. LIMPEZA VISUAL (O botão desaparece após o clique):
-                vrButton.style.opacity = '0';
-                vrButton.style.pointerEvents = 'none'; 
-            } else {
-                // Mensagem de erro caso o navegador não consiga ativar o VR:
-                alert("O modo VR não pôde ser ativado. Verifique se seu dispositivo suporta WebXR e se o navegador está atualizado (Chrome ou Firefox).");
-            }
+        const modelViewer = document.querySelector('model-viewer');
+        const progress = document.querySelector('.progress-bar');
+        const bar = document.querySelector('.update-bar');
+      
+        modelViewer.addEventListener('progress', (event) => {
+          const {totalProgress} = event.detail;
+          progress.classList.toggle('hide', totalProgress === 1);
+          bar.style.width = `${totalProgress * 100}%`;
         });
     </script>
 </body>
 </html>
 </body>
 </html>
+
 
